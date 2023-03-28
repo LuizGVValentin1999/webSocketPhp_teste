@@ -11,6 +11,7 @@ use Ratchet\Server\IoServer;
 use Ratchet\Server\FlashPolicy;
 use Ratchet\Http\HttpServer;
 use Ratchet\Http\Router;
+use Ratchet\WebSocket\MessageComponentInterface as WsMessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Ratchet\Wamp\WampServer;
 use Symfony\Component\Routing\RouteCollection;
@@ -60,8 +61,9 @@ class App {
      * @param int           $port       Port to listen on. If 80, assuming production, Flash on 843 otherwise expecting Flash to be proxied through 8843
      * @param string        $address    IP address to bind to. Default is localhost/proxy only. '0.0.0.0' for any machine.
      * @param LoopInterface $loop       Specific React\EventLoop to bind the application to. null will create one for you.
+     * @param array         $context
      */
-    public function __construct($httpHost = 'localhost', $port = 8080, $address = '127.0.0.1', LoopInterface $loop = null) {
+    public function __construct($httpHost = 'localhost', $port = 8080, $address = '127.0.0.1', LoopInterface $loop = null, $context = array()) {
         if (extension_loaded('xdebug') && getenv('RATCHET_DISABLE_XDEBUG_WARN') === false) {
             trigger_error('XDebug extension detected. Remember to disable this if performance testing or going live!', E_USER_WARNING);
         }
@@ -73,7 +75,7 @@ class App {
         $this->httpHost = $httpHost;
         $this->port = $port;
 
-        $socket = new Reactor($address . ':' . $port, $loop);
+        $socket = new Reactor($address . ':' . $port, $loop, $context);
 
         $this->routes  = new RouteCollection;
         $this->_server = new IoServer(new HttpServer(new Router(new UrlMatcher($this->routes, new RequestContext))), $socket, $loop);
@@ -105,7 +107,7 @@ class App {
         } elseif ($controller instanceof WampServerInterface) {
             $decorated = new WsServer(new WampServer($controller));
             $decorated->enableKeepAlive($this->_server->loop);
-        } elseif ($controller instanceof MessageComponentInterface) {
+        } elseif ($controller instanceof MessageComponentInterface || $controller instanceof WsMessageComponentInterface) {
             $decorated = new WsServer($controller);
             $decorated->enableKeepAlive($this->_server->loop);
         } else {

@@ -8,6 +8,21 @@ CHANGELOG
 
 ---
 
+* 0.4.4 (2021-12-11)
+  * Correct and update dependencies for forward compatibility
+  * Added context for React Socket server to App
+  * Use non-deprecated Guzzle API calls
+
+* 0.4.3 (2020-06-04)
+  * BF: Fixed interface acceptable regression in `App`
+  * Update RFC6455 library with latest fixes
+
+* 0.4.2 (2020-01-27)
+  * Support Symfony 5
+  * BF: Use phpunit from vendor directory
+  * Allow disabling of xdebug warning by defining `RATCHET_DISABLE_XDEBUG_WARN`
+  * Stop using `LoopInterface::tick()` for testing
+
 * 0.4.1 (2017-12-11)
   * Only enableKeepAlive in App if no WsServer passed allowing user to set their own timeout duration
   * Support Symfony 4
